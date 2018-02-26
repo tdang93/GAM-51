@@ -12,15 +12,13 @@ public class Add : MonoBehaviour {
     }
 
     private void Update() {
-        Debug.DrawLine(A.transform.forward, Vector3.zero, Color.red);
-        Debug.DrawLine(B.transform.forward, Vector3.zero, Color.green);
-        CalculateResultant();
+        Debug.DrawRay(Vector3.zero, A.transform.forward, Color.red);
+        Debug.DrawRay(Vector3.zero, B.transform.forward, Color.green);
 
-        Debug.DrawLine(Vector3.zero, Resultant.transform.forward, Color.blue);
-    }
-
-    private void CalculateResultant() {
-        Vector3 v3 = new Vector3(A.transform.forward.x + B.transform.forward.x, A.transform.forward.y + B.transform.forward.y, A.transform.forward.z + B.transform.forward.z);
-        Resultant.transform.rotation = Quaternion.Euler(v3);
+        //Resultant.transform.eulerAngles = (A.transform.forward + B.transform.forward);
+        //Resultant.transform.eulerAngles = A.transform.forward + B.transform.forward;
+        Vector3 target = A.transform.forward + B.transform.forward;
+        Resultant.transform.LookAt(target, Vector3.up);
+        Debug.DrawLine(Vector3.zero, Resultant.transform.forward * target.magnitude, Color.blue);
     }
 }
