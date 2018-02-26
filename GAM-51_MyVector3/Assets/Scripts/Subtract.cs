@@ -15,8 +15,8 @@ public class Subtract : MonoBehaviour {
         Debug.DrawRay(Vector3.zero, A.transform.forward, Color.red);
         Debug.DrawRay(Vector3.zero, B.transform.forward, Color.green);
 
-        Vector3 target = A.transform.forward - B.transform.forward;
+        Vector3 target = MyVector3.Add(A.transform.forward, B.transform.forward);
         Resultant.transform.LookAt(target, Vector3.up);
-        Debug.DrawLine(Vector3.zero, Resultant.transform.forward * target.magnitude, Color.blue);
+        Debug.DrawLine(Vector3.zero, MyVector3.Scale(Resultant.transform.forward, target.magnitude), Color.blue);
     }
 }

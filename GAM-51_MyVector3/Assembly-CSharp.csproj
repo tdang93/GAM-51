@@ -52,7 +52,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Add.cs" />
+     <Compile Include="Assets\Scripts\Magnitude.cs" />
      <Compile Include="Assets\Scripts\MyVector3.cs" />
+     <Compile Include="Assets\Scripts\Scale.cs" />
      <Compile Include="Assets\Scripts\Subtract.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
