@@ -14,8 +14,13 @@ public class Add : MonoBehaviour {
     private void Update() {
         Debug.DrawLine(A.transform.forward, Vector3.zero, Color.red);
         Debug.DrawLine(B.transform.forward, Vector3.zero, Color.green);
-        Resultant.transform.rotation = Vector3.(A.transform.forward + B.transform.forward);
+        CalculateResultant();
 
-        Debug.DrawLine(A.transform.forward + B.transform.forward, Vector3.zero, Color.blue);
+        Debug.DrawLine(Vector3.zero, Resultant.transform.forward, Color.blue);
+    }
+
+    private void CalculateResultant() {
+        Vector3 v3 = new Vector3(A.transform.forward.x + B.transform.forward.x, A.transform.forward.y + B.transform.forward.y, A.transform.forward.z + B.transform.forward.z);
+        Resultant.transform.rotation = Quaternion.Euler(v3);
     }
 }
