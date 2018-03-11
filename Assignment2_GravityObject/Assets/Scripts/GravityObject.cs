@@ -12,20 +12,23 @@ public class GravityObject : MonoBehaviour {
         = .00551kg/.000001m^3
         = 5510kg/m^3
     */
+    List<GravityObject> otherObjects;
+    List<GravityObject> overlappingObjects;
 
     void Start()
     {
         setRadius(mass);
         gameObject.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
-        Debug.Log("radius * 2 : " + radius * 2);
+        Debug.Log(name + "'s diameter : " + radius * 2);
     }
 
     void FixedUpdate()
     {
-        //Debug.Log("Test");
+        overlappingObjects = checkForSphereOverlap();
     }
 
-    void OnTriggerEnter(Collider other)
+    /*
+    private void OnTriggerEnter(Collider other)
     {
         Debug.Log("Trigger enter!");
         GravityObject smaller;
@@ -36,6 +39,7 @@ public class GravityObject : MonoBehaviour {
             Destroy(other.gameObject);
         }
     }
+    */
 
     public float calcRadius(float mass)
     {
@@ -58,12 +62,33 @@ public class GravityObject : MonoBehaviour {
         radius = calcRadius(setMass);
     }
 
-    public void consume(float smallerMass)
+    public void consume(GravityObject smallerObject)
     {
-        if (mass > smallerMass)
+        if (mass > smallerObject.mass)
         {
-            mass += smallerMass;
+            mass += smallerObject.mass;
             radius = calcRadius(mass);
+            Destroy(smallerObject.gameObject);
         }
-    }      
+    }
+
+    private List<GravityObject> checkForSphereOverlap() {
+        List<GravityObject> overlappingObjects = new List<GravityObject>();
+        foreach(GravityObject GO in otherObjects) {
+            float separation = (GO.transform.position - this.transform.position).magnitude;
+            if(verifyOverlap(this, GO)) {
+                overlappingObjects.Add(GO);
+            }
+        }
+        return overlappingObjects;
+    }
+
+    // since this function is static, Manager can call it for utility without instantiating it
+    public static bool verifyOverlap(GravityObject GO1, GravityObject GO2) {
+        float separation = (GO2.transform.position - GO1.transform.position).magnitude;
+        if(separation < GO1.radius + GO2.radius) {
+            return true;
+        }
+        return false; // else return false
+    }
 }
