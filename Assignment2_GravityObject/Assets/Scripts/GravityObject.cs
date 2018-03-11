@@ -15,8 +15,9 @@ public class GravityObject : MonoBehaviour {
 
     void Start()
     {
-        setRadius(calcRadius(mass));
+        setRadius(mass);
         gameObject.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
+        Debug.Log("radius * 2 : " + radius * 2);
     }
 
     void FixedUpdate()
@@ -52,9 +53,9 @@ public class GravityObject : MonoBehaviour {
         return newRadius;
     }
 
-    public void setRadius(float smallerMass)
+    public void setRadius(float setMass)
     {
-        radius = calcRadius(mass + smallerMass);
+        radius = calcRadius(setMass);
     }
 
     public void consume(float smallerMass)
