@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Manager : MonoBehaviour {
-    public int minimumObjects = 2;
-    public int maximumObjects = 10;
-    public float minimumMass = 0.5f;
-    public float maximumMass = 10;
+    [Range(2, 5)] public int minimumObjects = 2;
+    [Range(5, 20)] public int maximumObjects = 10;
+    [Range(0.1f, 1)] public float minimumMass = 1;
+    [Range(1, 20)] public float maximumMass = 16;
+    [Range(6.674f / 100000000000f, 6.674f * 10)] public float G = 0.01f;
     [SerializeField] private GravityObject prefab;
     [SerializeField] private List<GravityObject> AllObjects;
 
@@ -15,6 +16,33 @@ public class Manager : MonoBehaviour {
         //Debug.Log("AllObjects.Capacity: " + AllObjects.Capacity);
         GenerateObjects(AllObjects);
         //Debug.Log("AllObjects.Count: " + AllObjects.Count);
+
+        minimumObjects = 2;
+        maximumObjects = 10;
+        minimumMass = 1;
+        maximumMass = 16;
+        G = 5;
+    }
+
+    private void Update() {
+        foreach(GravityObject GO1 in AllObjects) {
+            foreach(GravityObject GO2 in AllObjects) {
+                if(GO1 != GO2) {
+                    //applyGravity(GO1, GO2);
+                    Debug.Log("applyGravity()");
+                    applyFakeGravity(GO1, GO2);
+
+                    if(GravityObject.verifyOverlap(GO1, GO2)) {
+                        if(GO1.mass > GO2.mass) {
+                            GO1.consume(GO2);
+                        }
+                        else if(GO2.mass > GO1.mass) {
+                            GO2.consume(GO1);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private List<GravityObject> PopulateObjects() {
@@ -36,7 +64,7 @@ public class Manager : MonoBehaviour {
             //Debug.Log("GenerateObjects()#1: L_GOs.Capacity = " + L_GOs.Capacity);
             //Debug.Log("GenerateObjects()#2: for(): i = " + i);
             L_GOs[i].mass = Random.Range(minimumMass, maximumMass); // randomize radius via mass
-            L_GOs[i].Refresh(); // update radius and localScale
+            L_GOs[i].Refresh(); // update radius, localScale, rigidbody
 
             float maximumEndToEnd = GravityObject.calcRadius(maximumMass) * L_GOs.Capacity;
             Vector3 location = new Vector3(Random.Range(-maximumEndToEnd, maximumEndToEnd), 
@@ -58,7 +86,8 @@ public class Manager : MonoBehaviour {
             L_GOs[i].gameObject.SetActive(true); // reactivate after positioning
         }
     }
-    
+
+    /*
     private bool D6Relocate(GravityObject GO1, GravityObject GO2) {
         // move GO2 around 6 faces of a die measuring 2 * GO1.radius per side, centered on GO1
         Vector3 center = GO1.gameObject.transform.position;
@@ -80,5 +109,32 @@ public class Manager : MonoBehaviour {
             }
         }
         return false; // failure flag; not able to relocate on any of 6 faces
+    }
+    */
+
+    /*
+    private void applyGravity(GravityObject GO1, GravityObject GO2) {
+        Vector3 radiusVector = (GO2.transform.position - GO1.transform.position);
+        float r = radiusVector.magnitude; // * Mathf.Pow(10, 6);
+        float m1 = GO1.mass; // * Mathf.Pow(10, 24);
+        float m2 = GO2.mass; // * Mathf.Pow(10, 24);
+        float gravityForce = (G * GO1.mass * GO2.mass * Mathf.Pow(10, 36)) / (r * r);
+
+        radiusVector = radiusVector.normalized * gravityForce;
+        GO2.rigidbody.AddForce(-radiusVector); // scalable with slider
+        GO1.rigidbody.AddForce(radiusVector); // scalable with slider
+    }
+    */
+
+    private void applyFakeGravity(GravityObject GO1, GravityObject GO2) {
+        Vector3 radiusVector = (GO2.transform.position - GO1.transform.position);
+        float r = radiusVector.magnitude;
+        float m1 = GO1.mass;
+        float m2 = GO2.mass;
+        float gravityForce = (G * GO1.mass * GO2.mass) / (r * r);
+
+        radiusVector = radiusVector.normalized * gravityForce;
+        GO2.rigidbody.AddForce(-radiusVector); // scalable with slider
+        GO1.rigidbody.AddForce(radiusVector); // scalable with slider
     }
 }
