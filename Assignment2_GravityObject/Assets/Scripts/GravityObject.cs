@@ -19,12 +19,12 @@ public class GravityObject : MonoBehaviour {
     {
         setRadius(mass);
         gameObject.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
-        Debug.Log(name + "'s diameter : " + radius * 2);
+        //Debug.Log(name + "'s diameter : " + radius * 2);
     }
 
     void FixedUpdate()
     {
-        overlappingObjects = checkForSphereOverlap();
+        //overlappingObjects = checkForSphereOverlap();
     }
 
     /*
@@ -44,7 +44,7 @@ public class GravityObject : MonoBehaviour {
     public float calcRadius(float mass)
     {
         float volume = mass * Mathf.Pow(10, 24) / EARTH_KG_CUBICMETER_RATIO; // mass scaled up by 10^24; mass in units of 10^24 kg
-        Debug.Log("volume: " + volume);
+        //Debug.Log("volume: " + volume);
         // Volume = (4/3) * pi * r^3
         // r = ((3/4) * volume / pi) ^ (1/3)
 
@@ -53,7 +53,7 @@ public class GravityObject : MonoBehaviour {
         float newRadius = volume * 0.75f / 3.14159f;
         newRadius = Mathf.Pow(newRadius, (1.0f / 3.0f));
        */
-        Debug.Log("new radius: " + newRadius );
+        //Debug.Log("new radius: " + newRadius );
         return newRadius;
     }
 
