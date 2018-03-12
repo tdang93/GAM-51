@@ -135,10 +135,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dd34cc14c148664291c8a1b040690b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minimumObjects: 2
-  maximumObjects: 2
-  minimumRadius: 0.5
-  maximumRadius: 2
+  minimumObjects: 5
+  maximumObjects: 10
+  minimumMass: 0.5
+  maximumMass: 16
   prefab: {fileID: 114565494916104412, guid: 07bf8ce790013f84b9093931bb8bd073, type: 2}
   AllObjects: []
 --- !u!224 &200998495

@@ -15,13 +15,6 @@ public class GravityObject : MonoBehaviour {
     List<GravityObject> otherObjects;
     List<GravityObject> overlappingObjects;
 
-    void Start()
-    {
-        setRadius(mass);
-        gameObject.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
-        //Debug.Log(name + "'s diameter : " + radius * 2);
-    }
-
     void FixedUpdate()
     {
         //overlappingObjects = checkForSphereOverlap();
@@ -41,7 +34,13 @@ public class GravityObject : MonoBehaviour {
     }
     */
 
-    public float calcRadius(float mass)
+    public void Refresh() {
+        setRadius(mass);
+        gameObject.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
+        //Debug.Log(name + "'s diameter : " + radius * 2);
+    }
+
+    public static float calcRadius(float mass)
     {
         float volume = mass * Mathf.Pow(10, 24) / EARTH_KG_CUBICMETER_RATIO; // mass scaled up by 10^24; mass in units of 10^24 kg
         //Debug.Log("volume: " + volume);
@@ -85,8 +84,11 @@ public class GravityObject : MonoBehaviour {
 
     // since this function is static, Manager can call it for utility without instantiating it
     public static bool verifyOverlap(GravityObject GO1, GravityObject GO2) {
+        //Debug.Log("verifyOverlap()");
         float separation = (GO2.transform.position - GO1.transform.position).magnitude;
-        if(separation < GO1.radius + GO2.radius) {
+        //Debug.Log("separation = " + separation);
+        //Debug.Log("sum of radii = " + (GO1.radius + GO2.radius));
+        if(GO1 != GO2 && separation < (GO1.radius + GO2.radius)) {
             return true;
         }
         return false; // else return false
