@@ -7,7 +7,7 @@ public class Manager : MonoBehaviour {
     [Range(5, 20)] public int maximumObjects = 10;
     [Range(0.1f, 1)] public float minimumMass = 1;
     [Range(1, 20)] public float maximumMass = 16;
-    [Range(6.674f / 100000000000f, 6.674f * 10)] public float G = 0.01f;
+    [Range(6.674f / 100000000000f, 6.674f * 10)] public float G = 1f;
     [SerializeField] private GravityObject prefab;
     [SerializeField] private List<GravityObject> AllObjects;
 
@@ -21,7 +21,7 @@ public class Manager : MonoBehaviour {
         maximumObjects = 10;
         minimumMass = 1;
         maximumMass = 16;
-        G = 5;
+        G = .5f;
     }
 
     private void Update() {
@@ -82,7 +82,8 @@ public class Manager : MonoBehaviour {
                 }
             }
             */
-            
+            L_GOs[i].rigidbody.velocity = new Vector3(Random.Range(-.1f, .1f),
+                Random.Range(-.1f, .1f), Random.Range(-.1f, .1f));
             L_GOs[i].gameObject.SetActive(true); // reactivate after positioning
         }
     }
