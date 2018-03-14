@@ -7,6 +7,7 @@ public class GravityObject : MonoBehaviour {
     public float radius;
     public float mass;
     const float EARTH_KG_CUBICMETER_RATIO = 5510.0f;
+    public static int total = 0;
     /*
         Earth density = 5.51g/cm^3
         = .00551kg/cm^3
@@ -16,11 +17,17 @@ public class GravityObject : MonoBehaviour {
     List<GravityObject> otherObjects;
     List<GravityObject> overlappingObjects;
 
+    void Awake() {
+        total++;
+        Debug.Log("total = " + total);
+    }
+
     public void Refresh() {
         setRadius(mass);
         gameObject.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
         //Debug.Log(name + "'s diameter : " + radius * 2);
-        rigidbody = GetComponent<Rigidbody>();
+        //rigidbody = GetComponent<Rigidbody>();
+        //rigidbody.velocity /= mass;
     }
 
     public static float calcRadius(float mass)
@@ -56,9 +63,15 @@ public class GravityObject : MonoBehaviour {
             Refresh();
             if (smallerObject.mass < 0.1f) {
                 smallerObject.gameObject.SetActive(false);
+                total--;
+                Debug.Log(total + " GravityObjects left!");
             }
             else {
                 smallerObject.Refresh();
+                smallerObject.rigidbody.velocity /= half; // slow down to prevent slingshotting
+            }
+            if(half > 1) {
+                rigidbody.velocity /= half; // slow down based on mass consumed, because now heavier
             }
         }
     }
@@ -76,11 +89,14 @@ public class GravityObject : MonoBehaviour {
 
     // since this function is static, Manager can call it for utility without instantiating it
     public static bool verifyOverlap(GravityObject GO1, GravityObject GO2) {
+        if(!GO1.gameObject.activeSelf || !GO2.gameObject.activeSelf || GO1 == GO2) {
+            return false; // weed out cases where a GO is not active, or if it is verifying overlap on itself
+        }
         //Debug.Log("verifyOverlap()");
         float separation = (GO2.transform.position - GO1.transform.position).magnitude;
         //Debug.Log("separation = " + separation);
         //Debug.Log("sum of radii = " + (GO1.radius + GO2.radius));
-        if(GO1 != GO2 && separation < (GO1.radius + GO2.radius)) {
+        if(separation < (GO1.radius + GO2.radius)) {
             return true;
         }
         return false; // else return false

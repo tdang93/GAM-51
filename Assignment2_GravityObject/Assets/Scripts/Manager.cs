@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Manager : MonoBehaviour {
-    [Range(2, 5)] public int minimumObjects = 2;
-    [Range(5, 20)] public int maximumObjects = 10;
-    [Range(0.1f, 1)] public float minimumMass = 1;
+    [Range(2, 100)] public int minimumObjects = 2;
+    [Range(10, 100)] public int maximumObjects = 10;
+    [Range(1, 20)] public float minimumMass = 1;
     [Range(1, 20)] public float maximumMass = 16;
     [Range(6.674f / 100000000000f, 6.674f * 10)] public float G = 1f;
+    [Range(1, 5)] public int consumeRate = 1;
     [SerializeField] private GravityObject prefab;
     [SerializeField] private List<GravityObject> AllObjects;
 
@@ -17,27 +18,34 @@ public class Manager : MonoBehaviour {
         GenerateObjects(AllObjects);
         //Debug.Log("AllObjects.Count: " + AllObjects.Count);
 
+        /*
         minimumObjects = 2;
         maximumObjects = 10;
         minimumMass = 1;
         maximumMass = 16;
         G = .5f;
+        consumeRate = 1;
+        */
     }
 
-    private void Update() {
+    private void FixedUpdate() {
         foreach(GravityObject GO1 in AllObjects) {
             foreach(GravityObject GO2 in AllObjects) {
                 if(GO1 != GO2) {
                     //applyGravity(GO1, GO2);
-                    Debug.Log("applyGravity()");
+                    //Debug.Log("applyGravity()");
                     applyFakeGravity(GO1, GO2);
 
                     if(GravityObject.verifyOverlap(GO1, GO2)) {
                         if(GO1.mass > GO2.mass) {
-                            GO1.consume(GO2);
+                            for(int i = 0; i < consumeRate; i++) {
+                                GO1.consume(GO2);
+                            }
                         }
                         else if(GO2.mass > GO1.mass) {
-                            GO2.consume(GO1);
+                            for(int i = 0; i < consumeRate; i++) {
+                                GO2.consume(GO1);
+                            }
                         }
                     }
                 }
@@ -64,7 +72,8 @@ public class Manager : MonoBehaviour {
             //Debug.Log("GenerateObjects()#1: L_GOs.Capacity = " + L_GOs.Capacity);
             //Debug.Log("GenerateObjects()#2: for(): i = " + i);
             L_GOs[i].mass = Random.Range(minimumMass, maximumMass); // randomize radius via mass
-            L_GOs[i].Refresh(); // update radius, localScale, rigidbody
+            L_GOs[i].Refresh(); // update radius, localScale
+            L_GOs[i].rigidbody = L_GOs[i].GetComponent<Rigidbody>();
 
             float maximumEndToEnd = GravityObject.calcRadius(maximumMass) * L_GOs.Capacity;
             Vector3 location = new Vector3(Random.Range(-maximumEndToEnd, maximumEndToEnd), 
