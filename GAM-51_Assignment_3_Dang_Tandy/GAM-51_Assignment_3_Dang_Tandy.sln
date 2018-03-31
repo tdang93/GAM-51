@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GAM-51_Assignment_3_Dang_Tandy", "GAM-51_Assignment_3_Dang_Tandy.csproj", "{508FC5FF-5E18-283B-13EF-9ACA7CDC62BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{508FC5FF-5E18-283B-13EF-9ACA7CDC62BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{508FC5FF-5E18-283B-13EF-9ACA7CDC62BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{508FC5FF-5E18-283B-13EF-9ACA7CDC62BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{508FC5FF-5E18-283B-13EF-9ACA7CDC62BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
