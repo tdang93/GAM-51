@@ -109,7 +109,7 @@ MonoBehaviour:
   m_MinSize: {x: 887, y: 342}
   m_MaxSize: {x: 16012, y: 8042}
   vertical: 0
-  controlID: 69
+  controlID: 9
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -133,7 +133,7 @@ MonoBehaviour:
   m_MinSize: {x: 610, y: 342}
   m_MaxSize: {x: 12010, y: 8042}
   vertical: 1
-  controlID: 70
+  controlID: 10
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -158,7 +158,7 @@ MonoBehaviour:
   m_MinSize: {x: 610, y: 221}
   m_MaxSize: {x: 12010, y: 4021}
   vertical: 0
-  controlID: 71
+  controlID: 11
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -393,21 +393,21 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: e6260000
     m_LastClickedID: 9958
-    m_ExpandedIDs: 1afcffff00000000e6260000f8260000
+    m_ExpandedIDs: 1afcffff00000000e6260000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: Osprey
+      m_OriginalName: Osprey
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 0
+      m_UserData: 9958
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 0
       m_ClientGUIView: {fileID: 8}
     m_SearchString: 
@@ -443,14 +443,14 @@ MonoBehaviour:
     width: 352
     height: 433
   m_SceneLighting: 1
-  lastFramingTime: 34696.33008941488
+  lastFramingTime: 6031.558352602884
   m_2DMode: 0
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 0.14500332, y: 2.3723922, z: 0.00005340576}
+    m_Target: {x: 0, y: 5, z: 0}
     speed: 2
-    m_Value: {x: 0.14500332, y: 2.3723922, z: 0.00005340576}
+    m_Value: {x: 0, y: 5, z: 0}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -475,11 +475,11 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: 0.058071498, y: -0.70198387, z: 0.057620138, w: 0.7074788}
     speed: 2
-    m_Value: {x: -0.0580715, y: 0.70198387, z: -0.057620138, w: -0.7074788}
+    m_Value: {x: 0.058071498, y: -0.70198387, z: 0.057620138, w: 0.7074788}
   m_Size:
-    m_Target: 47.860462
+    m_Target: 41.364437
     speed: 2
-    m_Value: 47.860462
+    m_Value: 41.364437
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -489,7 +489,7 @@ MonoBehaviour:
   m_ReplacementShader: {fileID: 0}
   m_ReplacementString: 
   m_LastLockedObject: {fileID: 0}
-  m_ViewIsLockedToObject: 0
+  m_ViewIsLockedToObject: 1
 --- !u!114 &16
 MonoBehaviour:
   m_ObjectHideFlags: 52

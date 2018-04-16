@@ -47,37 +47,77 @@ public class Osprey : MonoBehaviour {
     private void Move(FlyingMode FM) {
         if(FM == FlyingMode.Helicopter) {
             Vector3 pendingMove = Input_Positional;
-
             if(pendingMove.z != 0) {
-                float RotorLRotationX = rotors.RotorL.transform.rotation.eulerAngles.x;
-                float RotorRRotationX = rotors.RotorR.transform.rotation.eulerAngles.x;
+                float RotorLRotationX = rotors.RotorL.transform.localRotation.eulerAngles.x;
+                float RotorRRotationX = rotors.RotorR.transform.localRotation.eulerAngles.x;
                 Vector3 rotateAmount = Vector3.zero;
                 if(Mathf.Approximately(RotorLRotationX, RotorRRotationX)) {
                     rotateAmount = new Vector3(1, 0, 0) * Sensitivity;
                 }
 
-                float test = rotors.RotorL.transform.rotation.eulerAngles.x + sensitivity;
-                if(test >= 270) {
-                    test -= 360;
-                }
+                float testForward = rotors.RotorL.transform.localRotation.eulerAngles.x + sensitivity; // pending +Z rotation
+                float testBackward = rotors.RotorL.transform.localRotation.eulerAngles.x - sensitivity; // pending -Z rotation
                 if(pendingMove.z > 0) { // tilt Rotors forward for Z-axis movement
-                    if(test <= 45) {
-                        //Debug.Log("x: " + rotors.RotorL.transform.rotation.eulerAngles.x);
+                    if((testForward < 45 || testForward > 315)) {
+                        //Debug.Log("x: " + rotors.RotorL.transform.localRotation.eulerAngles.x);
                         rotors.RotorL.transform.Rotate(rotateAmount); // set RotorL rotation, (+)
                         rotors.RotorR.transform.Rotate(rotateAmount); // set RotorR rotation, (+)
                         //Debug.Log("z > 0: " + Input_Positional.z);
                     }
                 }
                 else if(pendingMove.z < 0) { // tilt Rotors backward for Z-axis movement
-                    if(test >= -45) {
-                        //Debug.Log("x: " + rotors.RotorL.transform.rotation.eulerAngles.x);
+                    if((testBackward < 45 || testBackward > 315)) {
+                        //Debug.Log("x: " + rotors.RotorL.transform.localRotation.eulerAngles.x);
                         rotors.RotorL.transform.Rotate(-rotateAmount); // set RotorL rotation, (-)
                         rotors.RotorR.transform.Rotate(-rotateAmount); // set RotorR rotation, (-)
                         //Debug.Log("z < 0: " + Input_Positional.z);
                     }
                 }
             }
-            //Debug.Log("test: " + test);
+            // AUTOMATIC FORWARD/BACKWARD COMPENSATION
+            float localEulerX = gameObject.transform.localRotation.eulerAngles.x;
+            if(localEulerX > 30 && localEulerX < 90) { // compensate backwards from extreme forward tilt
+                if(rotors.RotorL.transform.localEulerAngles.x - 5 < 45 ||
+                rotors.RotorL.transform.localEulerAngles.x - 5 > 315) {
+                    rotors.RotorL.transform.Rotate(new Vector3(-5, 0, 0));
+                }
+                if(rotors.RotorR.transform.localEulerAngles.x - 5 < 45 ||
+                rotors.RotorR.transform.localEulerAngles.x - 5 > 315) {
+                    rotors.RotorR.transform.Rotate(new Vector3(-5, 0, 0));
+                    if (rotors.spin > 0) { // slow down rotors
+                        if(rotors.spin - 10 < 0) {
+                            rotors.spin = 0;
+                        }
+                        else {
+                            rotors.spin -= 10;
+                        }
+                    }
+                }
+                else { // cannot rotate rotors backwards any further
+                    rotors.spin = 100;
+                }
+            }
+            else if(localEulerX > 270 && localEulerX < 330) { // compensate forward
+                if(rotors.RotorL.transform.localEulerAngles.x + 5 < 45 ||
+                rotors.RotorL.transform.localEulerAngles.x + 5 > 315) {
+                    rotors.RotorL.transform.Rotate(new Vector3(5, 0, 0));
+                }
+                if(rotors.RotorR.transform.localEulerAngles.x + 5 < 45 ||
+                rotors.RotorR.transform.localEulerAngles.x + 5 > 315) {
+                    rotors.RotorR.transform.Rotate(new Vector3(5, 0, 0));
+                    if (rotors.spin > 0) { // slow down rotors
+                        if(rotors.spin - 10 < 0) {
+                            rotors.spin = 0;
+                        }
+                        else {
+                            rotors.spin -= 10;
+                        }
+                    }
+                }
+                else { // cannot rotate rotors backwards any further
+                    rotors.spin = 100;
+                }
+            }
 
             Vector3 rotation = Vector3.zero;
             float newRotation = 0;
@@ -126,7 +166,7 @@ public class Osprey : MonoBehaviour {
                         if(WC.transform.position.z > gameObject.transform.position.z && // if front wheels
                         (WC.steerAngle - (1 + tiltAmount)) > -45) { // and if not turning past -45 degrees
                             WC.steerAngle -= 1 + tiltAmount; // decrease to turn CW / L
-                            Debug.Log("steerAngle: " + WC.steerAngle);
+                            //Debug.Log("steerAngle: " + WC.steerAngle);
                         }
                     }
 
@@ -144,7 +184,7 @@ public class Osprey : MonoBehaviour {
                         if(WC.transform.position.z > gameObject.transform.position.z &&
                     (WC.steerAngle - (1 + tiltAmount)) < 45) { // and if not turning past 45 degrees) {
                             WC.steerAngle += 1 + tiltAmount; // increase to turn CCW / R
-                            Debug.Log("steerAngle: " + WC.steerAngle);
+                            //Debug.Log("steerAngle: " + WC.steerAngle);
                         }
                     }
                 }
