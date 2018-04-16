@@ -95,6 +95,15 @@ public class Osprey : MonoBehaviour {
                 else if(rotors.spin < 0 || Mathf.Approximately(rotors.spin, 0)) {
                     rotors.spin = 0;
                 }
+
+                foreach(WheelCollider WC in GetComponentsInChildren<WheelCollider>()) {
+                    WC.motorTorque = 0.000001f;
+                }  
+            }
+            else {
+                foreach(WheelCollider WC in GetComponentsInChildren<WheelCollider>()) {
+                    WC.motorTorque = 0;
+                }  
             }
             rotation += new Vector3(0, rotors.spin, 0);
 
@@ -113,6 +122,13 @@ public class Osprey : MonoBehaviour {
                     rotors.RotorL_Propeller.transform.Rotate(rotation * (1 + tiltAmount));
                     thrustL *= 1 + tiltAmount;
                     rigidbody.AddTorque(new Vector3(0, -(1 + tiltAmount), 0)); // CW
+                    foreach(WheelCollider WC in GetComponentsInChildren<WheelCollider>()) {
+                        if(WC.transform.position.z > gameObject.transform.position.z && // if front wheels
+                        (WC.steerAngle - (1 + tiltAmount)) > -45) { // and if not turning past -45 degrees
+                            WC.steerAngle -= 1 + tiltAmount; // decrease to turn CW / L
+                            Debug.Log("steerAngle: " + WC.steerAngle);
+                        }
+                    }
 
                     rotors.RotorR_Propeller.transform.Rotate(-rotation * (1 - tiltAmount));
                     thrustR *= 1 - tiltAmount;
@@ -124,6 +140,13 @@ public class Osprey : MonoBehaviour {
                     rotors.RotorR_Propeller.transform.Rotate(-rotation * (1 + tiltAmount));
                     thrustR *= 1 + tiltAmount;
                     rigidbody.AddTorque(new Vector3(0, (1 + tiltAmount), 0)); // CCW
+                    foreach(WheelCollider WC in GetComponentsInChildren<WheelCollider>()) {
+                        if(WC.transform.position.z > gameObject.transform.position.z &&
+                    (WC.steerAngle - (1 + tiltAmount)) < 45) { // and if not turning past 45 degrees) {
+                            WC.steerAngle += 1 + tiltAmount; // increase to turn CCW / R
+                            Debug.Log("steerAngle: " + WC.steerAngle);
+                        }
+                    }
                 }
             }
             else {
