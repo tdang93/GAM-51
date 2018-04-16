@@ -21,7 +21,7 @@ public class Osprey : MonoBehaviour {
             rigidbody = gameObject.GetComponent<Rigidbody>();
         }
         //rigidbody.position = new Vector3(transform.position.x, -10, rotors.RotorL.transform.position.z);
-        rigidbody.centerOfMass = new Vector3(0, 0, 0);
+        rigidbody.centerOfMass = new Vector3(0, -30, 0);
 
         flyingMode = FlyingMode.Helicopter; // start in Helicopter FlyingMode
         //rotors.radius = 1;
@@ -30,6 +30,17 @@ public class Osprey : MonoBehaviour {
 
     void Update() {
         //Debug.Log("Mouse X" + Input.GetAxis("Mouse X"));
+        if(Input.GetKeyDown(KeyCode.R)) {
+            rotors.RotorL.transform.localRotation = rotors.RotorR.transform.localRotation =
+                Quaternion.Euler(new Vector3(0,0,0));
+        }
+
+        if(Input.GetKey(KeyCode.Mouse0) && sensitivity + 0.05f <= 1) {
+            sensitivity += 0.05f;
+        }
+        else if(Input.GetKey(KeyCode.Mouse1) && sensitivity - 0.05f >= 0) {
+            sensitivity -= 0.05f;
+        }
     }
 
     void FixedUpdate() {
@@ -40,8 +51,9 @@ public class Osprey : MonoBehaviour {
         Debug.DrawRay(transform.position, rigidbody.velocity, Color.yellow); // velocity direction
         //Debug.Log("Dot Product of local forward and velocity: " + Vector3.Dot(transform.forward, rigidbody.velocity));
 
-
         Move(flyingMode);
+
+        //rigidbody.AddRelativeTorque(new Vector3(0, 1000, 0));
     }
 
     private void Move(FlyingMode FM) {
@@ -52,13 +64,13 @@ public class Osprey : MonoBehaviour {
                 float RotorRRotationX = rotors.RotorR.transform.localRotation.eulerAngles.x;
                 Vector3 rotateAmount = Vector3.zero;
                 if(Mathf.Approximately(RotorLRotationX, RotorRRotationX)) {
-                    rotateAmount = new Vector3(1, 0, 0) * Sensitivity;
+                    rotateAmount = new Vector3(1, 0, 0) * Sensitivity * 0.5f;
                 }
 
                 float testForward = rotors.RotorL.transform.localRotation.eulerAngles.x + sensitivity; // pending +Z rotation
                 float testBackward = rotors.RotorL.transform.localRotation.eulerAngles.x - sensitivity; // pending -Z rotation
                 if(pendingMove.z > 0) { // tilt Rotors forward for Z-axis movement
-                    if((testForward < 45 || testForward > 315)) {
+                    if((testForward < 30 || testForward > 330)) {
                         //Debug.Log("x: " + rotors.RotorL.transform.localRotation.eulerAngles.x);
                         rotors.RotorL.transform.Rotate(rotateAmount); // set RotorL rotation, (+)
                         rotors.RotorR.transform.Rotate(rotateAmount); // set RotorR rotation, (+)
@@ -66,7 +78,7 @@ public class Osprey : MonoBehaviour {
                     }
                 }
                 else if(pendingMove.z < 0) { // tilt Rotors backward for Z-axis movement
-                    if((testBackward < 45 || testBackward > 315)) {
+                    if((testBackward < 30 || testBackward > 330)) {
                         //Debug.Log("x: " + rotors.RotorL.transform.localRotation.eulerAngles.x);
                         rotors.RotorL.transform.Rotate(-rotateAmount); // set RotorL rotation, (-)
                         rotors.RotorR.transform.Rotate(-rotateAmount); // set RotorR rotation, (-)
@@ -74,9 +86,11 @@ public class Osprey : MonoBehaviour {
                     }
                 }
             }
+
+            /*
             // AUTOMATIC FORWARD/BACKWARD COMPENSATION
             float localEulerX = gameObject.transform.localRotation.eulerAngles.x;
-            if(localEulerX > 30 && localEulerX < 90) { // compensate backwards from extreme forward tilt
+            if(localEulerX > 15 && localEulerX < 90) { // compensate backwards from extreme forward tilt
                 if(rotors.RotorL.transform.localEulerAngles.x - 5 < 45 ||
                 rotors.RotorL.transform.localEulerAngles.x - 5 > 315) {
                     rotors.RotorL.transform.Rotate(new Vector3(-5, 0, 0));
@@ -94,10 +108,10 @@ public class Osprey : MonoBehaviour {
                     }
                 }
                 else { // cannot rotate rotors backwards any further
-                    rotors.spin = 100;
+                    rotors.spin = 80;
                 }
             }
-            else if(localEulerX > 270 && localEulerX < 330) { // compensate forward
+            else if(localEulerX > 270 && localEulerX < 345) { // compensate forward
                 if(rotors.RotorL.transform.localEulerAngles.x + 5 < 45 ||
                 rotors.RotorL.transform.localEulerAngles.x + 5 > 315) {
                     rotors.RotorL.transform.Rotate(new Vector3(5, 0, 0));
@@ -115,9 +129,10 @@ public class Osprey : MonoBehaviour {
                     }
                 }
                 else { // cannot rotate rotors backwards any further
-                    rotors.spin = 100;
+                    rotors.spin = 80;
                 }
             }
+            */
 
             Vector3 rotation = Vector3.zero;
             float newRotation = 0;
@@ -155,35 +170,41 @@ public class Osprey : MonoBehaviour {
             Vector3 thrustL = rotors.RotorL.transform.up.normalized * rotors.thrust;
             Vector3 thrustR = rotors.RotorR.transform.up.normalized * rotors.thrust;
 
-            float tiltAmount = 0; // 0 if no sideways input
             if(pendingMove.x != 0) { // if attempting to turn/rotate left or right
-                tiltAmount = Mathf.Abs(pendingMove.x * 0.25f); // scale tilting by sideways input amount
+                rotors.tiltAmount = Mathf.Abs(pendingMove.x) * 0.05f;
+                if(pendingMove.x < 0) {
+                    rigidbody.AddRelativeTorque(new Vector3(0, -rotors.spin, 0));
+                }
+                else if(pendingMove.x > 0) {
+                    rigidbody.AddRelativeTorque(new Vector3(0, rotors.spin, 0));
+                }
+
                 if(pendingMove.x < 0) { // -x -> Osprey rotates left, rotorL spins CW faster than RotorR
-                    rotors.RotorL_Propeller.transform.Rotate(rotation * (1 + tiltAmount));
-                    thrustL *= 1 + tiltAmount;
-                    rigidbody.AddTorque(new Vector3(0, -(1 + tiltAmount), 0)); // CW
+                    rotors.RotorL_Propeller.transform.Rotate(rotation * (1 + rotors.tiltAmount));
+                    thrustL *= 1 + rotors.tiltAmount;
+                    //rigidbody.AddTorque(new Vector3(0, -(300), 0)); // CW
+                    Debug.Log("L");
                     foreach(WheelCollider WC in GetComponentsInChildren<WheelCollider>()) {
                         if(WC.transform.position.z > gameObject.transform.position.z && // if front wheels
-                        (WC.steerAngle - (1 + tiltAmount)) > -45) { // and if not turning past -45 degrees
-                            WC.steerAngle -= 1 + tiltAmount; // decrease to turn CW / L
+                        (WC.steerAngle - (1 + rotors.tiltAmount)) > -45) { // and if not turning past -45 degrees
+                            WC.steerAngle -= 1 + rotors.tiltAmount; // decrease to turn CW / L
                             //Debug.Log("steerAngle: " + WC.steerAngle);
                         }
                     }
-
-                    rotors.RotorR_Propeller.transform.Rotate(-rotation * (1 - tiltAmount));
-                    thrustR *= 1 - tiltAmount;
+                    rotors.RotorR_Propeller.transform.Rotate(-rotation * (1 - rotors.tiltAmount));
+                    thrustR *= 1 - rotors.tiltAmount;
                 }
                 else if(pendingMove.x > 0) { // +x -> Osprey rotates right, rotorR spins CCW faster than RotorL
-                    rotors.RotorL_Propeller.transform.Rotate(rotation * (1 - tiltAmount));
-                    thrustL *= 1 - tiltAmount;
+                    rotors.RotorL_Propeller.transform.Rotate(rotation * (1 - rotors.tiltAmount));
+                    thrustL *= 1 - rotors.tiltAmount;
 
-                    rotors.RotorR_Propeller.transform.Rotate(-rotation * (1 + tiltAmount));
-                    thrustR *= 1 + tiltAmount;
-                    rigidbody.AddTorque(new Vector3(0, (1 + tiltAmount), 0)); // CCW
+                    rotors.RotorR_Propeller.transform.Rotate(-rotation * (1 + rotors.tiltAmount));
+                    thrustR *= 1 + rotors.tiltAmount;
+                    //rigidbody.AddTorque(new Vector3(0, (300), 0)); // CCW
                     foreach(WheelCollider WC in GetComponentsInChildren<WheelCollider>()) {
                         if(WC.transform.position.z > gameObject.transform.position.z &&
-                    (WC.steerAngle - (1 + tiltAmount)) < 45) { // and if not turning past 45 degrees) {
-                            WC.steerAngle += 1 + tiltAmount; // increase to turn CCW / R
+                    (WC.steerAngle - (1 + rotors.tiltAmount)) < 45) { // and if not turning past 45 degrees) {
+                            WC.steerAngle += 1 + rotors.tiltAmount; // increase to turn CCW / R
                             //Debug.Log("steerAngle: " + WC.steerAngle);
                         }
                     }
@@ -193,6 +214,7 @@ public class Osprey : MonoBehaviour {
                 rotors.RotorL_Propeller.transform.Rotate(rotation);
                 rotors.RotorR_Propeller.transform.Rotate(-rotation);
             }
+
             //Debug.Log("rotors.spin: " + rotors.spin);
             //Debug.Log("rotation.magnitude: " + rotation.magnitude);
 
@@ -208,14 +230,9 @@ public class Osprey : MonoBehaviour {
 
     private float Sensitivity {
         get {
-            float input = Input.GetAxis("Mouse Y");
+            //float input = Input.GetAxis("Mouse Y");
+            //input *= 0.25f;
             //Debug.Log("scrollwheel: " + input);
-            if(input > 0 && sensitivity <= 1.9f) { // upper limit is 2.0
-                sensitivity += 0.1f;
-            }
-            else if(input < 0 && sensitivity >= 0.2f) { // lower limit is 0.1
-                sensitivity -= 0.1f;
-            }
             return sensitivity;
         }
     }
@@ -268,6 +285,7 @@ public class Osprey : MonoBehaviour {
             }
         }
         // Area of circle = pi * r^2 ~ proportional  to: volume of air moved ~ thrust produced
+        public float tiltAmount;
     }
 
     [System.Serializable]
