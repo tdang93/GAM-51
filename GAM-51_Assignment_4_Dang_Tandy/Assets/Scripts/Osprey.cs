@@ -171,7 +171,7 @@ public class Osprey : MonoBehaviour {
             Vector3 thrustR = rotors.RotorR.transform.up.normalized * rotors.thrust;
 
             if(pendingMove.x != 0) { // if attempting to turn/rotate left or right
-                rotors.tiltAmount = Mathf.Abs(pendingMove.x) * 0.05f;
+                rotors.tiltAmount = Mathf.Abs(pendingMove.x) * 0.01f;
                 if(pendingMove.x < 0) {
                     rigidbody.AddRelativeTorque(new Vector3(0, -rotors.spin, 0));
                 }
