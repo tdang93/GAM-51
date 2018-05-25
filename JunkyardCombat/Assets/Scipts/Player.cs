@@ -19,31 +19,39 @@ public class Player : MonoBehaviour {
 
     [System.Serializable] private struct Target {
         public Part currentPart;
-        public Vector3 currentSurface;
+        public Vector3 currentPartSurface;
         public Part previousPart;
-        public Vector3 previousSurface;
+        public Vector3 previousPartSurface;
 
-        public Part testPart;
         public GameObject testPartGO;
+        public GameObject targetGO;
+        public Block testBlock;
+        public Block baseBlock;
 
         public void updateTargetPart(RaycastHit hit) {
             if(currentPart) {
                 previousPart = currentPart;
-                previousSurface = currentSurface;
+                previousPartSurface = currentPartSurface;
             }
             currentPart = hit.transform.gameObject.GetComponent<Part>();
-            currentSurface = hit.normal;
+            currentPartSurface = hit.normal;
         }
-        public void clearTarget() {
+        public void clearPart() {
             currentPart = null; // previousPart not set to null; kept for Remove()
-            currentSurface = previousSurface = Vector3.zero;
+            currentPartSurface = previousPartSurface = Vector3.zero;
 
             Destroy(testPartGO);
-            testPart = null;
             testPartGO = null;
         }
+
+        public void clearTestBlock() {
+            if(testBlock) {
+                Destroy(testBlock.gameObject);
+                testBlock = null;
+            }
+        }
     }
-    Target target;
+    [SerializeField] private Target target;
 
     [System.Serializable] private class PartIndex {
         public Part part;
@@ -79,63 +87,95 @@ public class Player : MonoBehaviour {
         //Vector3 targetedSurface;
         if(Physics.Raycast(ray, out hit, rayRange)) { // RayCast hit something
             if(hit.transform.GetComponent<Part>() != null) { // RayCast hit Part
+                target.clearTestBlock();
                 target.updateTargetPart(hit);
 
-                //Debug.Log(targetedPart.name);
+                infoText.text = target.currentPart.name;
                 infoText.color = Color.blue;
                 rayColor = Color.blue;
 
                 Debug.DrawLine(hit.transform.position, hit.transform.position + hit.normal, Color.red);
                 if(selectedPart && target.currentPart) {
                     if(!target.testPartGO) { // no testPartGO Instantiated
-                        Preview();
+                        PreviewPart();
                     }
                     else { // testPartGO already Instantiated
-                        if(target.currentSurface != target.previousSurface) {
+                        if(target.currentPartSurface != target.previousPartSurface) {
                             Destroy(target.testPartGO);
-                            target.testPart = null;
                             target.testPartGO = null;
 
-                            Preview();
+                            PreviewPart();
                         }
                     }   
                 }
             }
-            else { // RayCast hit GameObject
-                target.clearTarget();
-                if(hit.transform.gameObject) {
-                    //target.targetGO = hit.transform.gameObject;
+            else { // RayCast hit non-Part GameObject
+                target.clearPart();
+                target.targetGO = hit.transform.gameObject;
+                if(!target.currentPart) { // only if no current targeted Part, so that target is only a GameObject
+                    PreviewBaseBlock();
                 }
-                infoText.text = "";
+
+                infoText.text = target.targetGO.name;
                 infoText.color = Color.black;
             }
-            infoText.text = hit.transform.gameObject.name;
         }
         else { // RayCast hit nothing
             //targetedPart = null;
             //target = null;
-            target.clearTarget();
+            target.clearPart();
+            target.targetGO = null;
+            target.clearTestBlock();
+
             infoText.text = "";
             infoText.color = Color.black;
         }
         Debug.DrawLine(camera.transform.position, camera.transform.position + camera.transform.forward * rayRange, rayColor);
 
     }
-    void Preview() {
-        Vector3 offset = target.currentPart.transform.position + target.currentSurface;
-        target.testPart = GameObject.Instantiate(selectedPart, offset, Quaternion.identity);
-        target.testPartGO = target.testPart.gameObject;
-        target.testPartGO.GetComponent<Collider>().enabled = false;
-        //Destroy(testPart);
+    void PreviewPart() {
+        if(target.baseBlock) {
+            Vector3 offset = target.currentPart.transform.position + target.currentPartSurface;
+            target.testPartGO = GameObject.Instantiate(selectedPart, offset, Quaternion.identity).gameObject;
+            target.testPartGO.GetComponent<Collider>().enabled = false;
+            //Destroy(testPart);
 
-        //testPartGO = GameObject.Instantiate(selectedPart, offset, Quaternion.identity).gameObject;
-        /*
-        Mesh mesh = selectedPart.gameObject.GetComponent<MeshFilter>().mesh;
-        Vector3 offset = targetedPart.transform.position + hit.normal;
-        Graphics.DrawMeshNow(mesh, offset, Quaternion.identity);
-        */
+            //testPartGO = GameObject.Instantiate(selectedPart, offset, Quaternion.identity).gameObject;
+            /*
+            Mesh mesh = selectedPart.gameObject.GetComponent<MeshFilter>().mesh;
+            Vector3 offset = targetedPart.transform.position + hit.normal;
+            Graphics.DrawMeshNow(mesh, offset, Quaternion.identity);
+            */
         
-        Debug.Log("TestPlace()");
+            Debug.Log("TestPlace()");
+        }
+    }
+
+    void PreviewBaseBlock() {
+        if(!target.baseBlock && !target.testPartGO && selectedPart is Block && target.targetGO) {
+            Vector3 placement = hit.transform.gameObject.transform.position + hit.normal; // intercept offset by normal
+            if(!target.testBlock) {
+                target.testBlock = GameObject.Instantiate(selectedPart, placement, Quaternion.identity) as Block;
+                target.testBlock.GetComponent<Collider>().enabled = false;
+            }
+            else {
+                target.testBlock.transform.position = placement;
+            }
+        }
+    }
+    void DropBaseBlock() {
+        if(target.testBlock) {
+            target.baseBlock = target.testBlock;
+            target.baseBlock.GetComponent<Collider>().enabled = true;
+            target.baseBlock.IsBaseBlock = true;
+            // rest of logic continued in Block.cs
+        }
+        else {
+            Debug.LogError("DropBaseBlock(): cannot place; target.testPartGO not null");
+            if(!(selectedPart is Block)) {
+                Debug.LogError("DropBaseBlock(): selectedPart is not a Block");
+            }
+        }
     }
 
     void ProcessInputs() {
@@ -204,6 +244,10 @@ public class Player : MonoBehaviour {
     }
     void Remove(Part removePart) {
         Destroy(removePart.gameObject);
+        if(removePart is Block && (removePart as Block).IsBaseBlock) {
+            target.baseBlock = null;
+        }
+
         //targetedPart = null;
         /*
         foreach(Socket socket in removePart.sockets) {

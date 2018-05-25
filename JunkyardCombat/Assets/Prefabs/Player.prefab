@@ -172,18 +172,15 @@ MonoBehaviour:
   camera: {fileID: 20625414762289994}
   infoText: {fileID: 0}
   rayRange: 10
-  target: {fileID: 0}
+  speed: 0.2
   inputs:
     translation: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0}
-  speed: 0.2
   inventory:
-  - part: {fileID: 0}
+  - part: {fileID: 114815232408960362, guid: 760916c687567114194328d59156366e, type: 2}
     amount: 5
     sellPrice: 0
   selectedPart: {fileID: 0}
-  targetedPart: {fileID: 0}
-  testPart: {fileID: 0}
 --- !u!124 &124955993533914912
 Behaviour:
   m_ObjectHideFlags: 1
